@@ -1,0 +1,5 @@
+pandas
+numpy
+flask
+PyMuPDF==1.23.22
+gunicorn
