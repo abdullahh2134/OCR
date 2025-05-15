@@ -12,6 +12,14 @@ def extract_text_from_pdf(pdf_file):
     doc.close()
     return full_text
 
+def preprocess_text(text):
+    # Replace underscores with spaces, remove multiple spaces, strip units like 'mg/dL', 'g/dL', 'U/L'
+    text = text.replace("_", " ")
+    text = re.sub(r'\s{2,}', ' ', text)
+    text = re.sub(r'\s*(mg/dL|g/dL|U/L|years)\b', '', text, flags=re.IGNORECASE)
+    return text
+
+
 def extract_patient_data(full_text):
     patient_data = {}
     patterns = {
@@ -40,13 +48,13 @@ def extract_patient_data(full_text):
         'Appetite': r"Appetite:\s*(Good|Poor|\w+)",
         'Pedal_Edema': r"Pedal Edema \(PE\):\s*(Yes|No|\w+)",
         'Anemia': r"Anemia \(ANE\):\s*(Yes|No|\w+)",
-        'Total_Bilirubin': r"Total Bilirubin:\s*([\d.]+)",
+         'Total_Bilirubin': r"Total Bilirubin:\s*([\d.]+)",
         'Direct_Bilirubin': r"Direct Bilirubin:\s*([\d.]+)",
-        'Alkaline_Phosphatase': r"Alkaline Phosphatase \:\s*(\d+)",
-        'Alanine_Aminotransferase': r"Alanine Aminotransferase\:\s*(\d+)",
-        'Aspartate_Aminotransferase': r"Aspartate Aminotransferase\:\s*(\d+)",
-        'Total_Protiens': r"Total Proteins:\s*([\d.]+)",
-        'Albumin_G': r"Albumin \(ALB\):\s*([\d.]+)",
+        'Alkaline_Phosphatase': r"Alkaline Phosphatase:\s*(\d+)",
+        'Alanine_Aminotransferase': r"Alanine Aminotransferase:\s*(\d+)",
+        'Aspartate_Aminotransferase': r"Aspartate Aminotransferase:\s*(\d+)",
+        'Total_Proteins': r"Total Proteins:\s*([\d.]+)",
+        'Albumin': r"Albumin:\s*([\d.]+)",
         'A_G_Ratio': r"A/G Ratio:\s*([\d.]+)",
         'Pregnancies': r"Pregnancies:\s*(\d+)",
         'SkinThickness': r"Skin Thickness:\s*(\d+)",
