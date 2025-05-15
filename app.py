@@ -55,7 +55,7 @@ def extract_patient_data(full_text):
         'Aspartate_Aminotransferase': r"Aspartate Aminotransferase:\s*(\d+)",
         'Total_Proteins': r"Total Proteins:\s*([\d.]+)",
         'Albumin': r"Albumin:\s*([\d.]+)",
-        'A_G_Ratio': r"A/G Ratio:\s*([\d.]+)",
+        'A_G_Ratio': r"A/G Ratio:\s*([\d.]+)"
         'Pregnancies': r"Pregnancies:\s*(\d+)",
         'SkinThickness': r"Skin Thickness:\s*(\d+)",
         'Insulin': r"Insulin:\s*(\d+)",
@@ -66,6 +66,17 @@ def extract_patient_data(full_text):
     for key, pattern in patterns.items():
         match = re.search(pattern, full_text)
         patient_data[key] = match.group(1) if match else "Not mentioned"
+
+
+      alias_map = {
+        'Albumin': 'Albumin',
+        'A_G_Ratio': 'A/G Ratio',
+        'Direct_Bilirubin': 'Direct Bilirubin',
+        'Gender': 'Gender of the patient',
+        'Age': 'Age of the patient',
+        'Alanine_Aminotransferase': 'Sgot',
+        'Aspartate_Aminotransferase': 'Aspartate Aminotransferase'
+    }
     return patient_data
 
 @app.route("/extract", methods=["POST"])
