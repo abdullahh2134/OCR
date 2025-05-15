@@ -67,8 +67,8 @@ def extract_patient_data(full_text):
         match = re.search(pattern, full_text)
         patient_data[key] = match.group(1) if match else "Not mentioned"
 
-
-      alias_map = {
+    
+    alias_map = {
         'Albumin': 'Albumin',
         'A_G_Ratio': 'A/G Ratio',
         'Direct_Bilirubin': 'Direct Bilirubin',
@@ -77,6 +77,10 @@ def extract_patient_data(full_text):
         'Alanine_Aminotransferase': 'Sgot',
         'Aspartate_Aminotransferase': 'Aspartate Aminotransferase'
     }
+
+    for original, alias in alias_map.items():
+        if original in patient_data:
+            patient_data[alias] = patient_data[original]
     return patient_data
 
 @app.route("/extract", methods=["POST"])
