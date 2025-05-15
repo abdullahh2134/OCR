@@ -55,7 +55,7 @@ def extract_patient_data(full_text):
         'Aspartate_Aminotransferase': r"Aspartate Aminotransferase:\s*(\d+)",
         'Total_Proteins': r"Total Proteins:\s*([\d.]+)",
         'Albumin': r"Albumin:\s*([\d.]+)",
-        'A_G_Ratio': r"A/G Ratio:\s*([\d.]+)"
+        'A_G_Ratio': r"A/G Ratio:\s*([\d.]+)",
         'Pregnancies': r"Pregnancies:\s*(\d+)",
         'SkinThickness': r"Skin Thickness:\s*(\d+)",
         'Insulin': r"Insulin:\s*(\d+)",
