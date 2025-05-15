@@ -53,7 +53,7 @@ def extract_patient_data(full_text):
         'Alkaline_Phosphatase': r"Alkaline Phosphatase:\s*(\d+)",
         'Alanine_Aminotransferase': r"Alanine Aminotransferase:\s*(\d+)",
         'Aspartate_Aminotransferase': r"Aspartate Aminotransferase:\s*(\d+)",
-        'Total_Proteins': r"Total Proteins:\s*([\d.]+)",
+        'Total_Protiens': r"Total Protiens:\s*([\d.]+)",
         'Albumin': r"Albumin:\s*([\d.]+)",
         'A_G_Ratio': r"A/G Ratio:\s*([\d.]+)",
         'Pregnancies': r"Pregnancies:\s*(\d+)",
