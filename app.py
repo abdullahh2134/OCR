@@ -1,61 +1,70 @@
+# app.py
 from flask import Flask, request, jsonify
 import fitz  # PyMuPDF
 import re
+from werkzeug.utils import secure_filename
+import os
 
 app = Flask(__name__)
 
-def extract_text_from_pdf(pdf_file):
-    doc = fitz.open(stream=pdf_file.read(), filetype="pdf")
+# Configuration
+UPLOAD_FOLDER = 'uploads'
+ALLOWED_EXTENSIONS = {'pdf'}
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+
+# Ensure upload folder exists
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+def extract_text_from_pdf(pdf_path):
+    doc = fitz.open(pdf_path)
     full_text = ""
+
     for page in doc:
         full_text += page.get_text()
+
     doc.close()
     return full_text
 
-def preprocess_text(text):
-    # Replace underscores with spaces, remove multiple spaces, strip units like 'mg/dL', 'g/dL', 'U/L'
-    text = text.replace("_", " ")
-    text = re.sub(r'\s{2,}', ' ', text)
-    text = re.sub(r'\s*(mg/dL|g/dL|U/L|years)\b', '', text, flags=re.IGNORECASE)
-    return text
-
-
 def extract_patient_data(full_text):
     patient_data = {}
+
     patterns = {
         'Age': r"Age:\s*(\d+)",
         'Gender': r"Gender:\s*(Male|Female|\w+)",
         'BloodPressure': r"Blood Pressure \(BP\):\s*([\d/]+)",
         'Glucose': r"Blood Glucose Level \(BGR\):\s*(\d+)",
-        'Specific_Gravity': r"Specific Gravity \(SG\):\s*([\d.]+)",
+        'Specific Gravity': r"Specific Gravity \(SG\):\s*([\d.]+)",
         'Albumin': r"Albumin \(AL\):\s*([\d.]+)",
         'Sugar': r"Sugar \(SU\):\s*(\d+|\w+)",
         'RBC': r"Red Blood Cells \(RBC\):\s*(\w+)",
-        'Pus_Cells': r"Pus Cells \(PC\):\s*(\w+)",
-        'Pus_Cell_Clumps': r"Pus Cell Clumps \(PCC\):\s*(\w+)",
+        'Pus Cells': r"Pus Cells \(PC\):\s*(\w+)",
+        'Pus Cell Clumps': r"Pus Cell Clumps \(PCC\):\s*(\w+)",
         'Bacteria': r"Bacteria \(BA\):\s*(\w+)",
-        'Blood_Urea': r"Blood Urea \(BU\):\s*(\d+)",
-        'Serum_Creatinine': r"Serum Creatinine \(SC\):\s*([\d.]+)",
+        'Blood Urea': r"Blood Urea \(BU\):\s*(\d+)",
+        'Serum Creatinine': r"Serum Creatinine \(SC\):\s*([\d.]+)",
         'Sodium': r"Sodium \(SOD\):\s*(\d+)",
         'Potassium': r"Potassium \(POT\):\s*([\d.]+)",
         'Hemoglobin': r"Hemoglobin \(HEMO\):\s*([\d.]+)",
         'Hematocrit': r"Hematocrit \(PCV\):\s*(\d+)",
-        'WBC_Count': r"White Blood Cell Count \(WC\):\s*(\d+)",
-        'RBC_Count': r"Red Blood Cell Count \(RC\):\s*([\d.]+)",
+        'WBC Count': r"White Blood Cell Count \(WC\):\s*(\d+)",
+        'RBC Count': r"Red Blood Cell Count \(RC\):\s*([\d.]+)",
         'Hypertension': r"Hypertension \(HTN\):\s*(Yes|No|\w+)",
-        'Diabetes_Mellitus': r"Diabetes \(DM\):\s*(Yes|No|\w+)",
-        'Coronary_Artery_Disease': r"Coronary Artery Disease \(CAD\):\s*(Yes|No|\w+)",
+        'Diabetes Mellitus': r"Diabetes \(DM\):\s*(Yes|No|\w+)",
+        'Coronary Artery Disease': r"Coronary Artery Disease \(CAD\):\s*(Yes|No|\w+)",
         'Appetite': r"Appetite:\s*(Good|Poor|\w+)",
-        'Pedal_Edema': r"Pedal Edema \(PE\):\s*(Yes|No|\w+)",
+        'Pedal Edema': r"Pedal Edema \(PE\):\s*(Yes|No|\w+)",
         'Anemia': r"Anemia \(ANE\):\s*(Yes|No|\w+)",
-         'Total_Bilirubin': r"Total Bilirubin:\s*([\d.]+)",
-        'Direct_Bilirubin': r"Direct Bilirubin:\s*([\d.]+)",
-        'Alkaline_Phosphatase': r"Alkaline Phosphatase:\s*(\d+)",
-        'Alanine_Aminotransferase': r"Alanine Aminotransferase:\s*(\d+)",
-        'Aspartate_Aminotransferase': r"Aspartate Aminotransferase:\s*(\d+)",
-        'Total_Proteins': r"Total Proteins:\s*([\d.]+)",
-        'Albumin': r"Albumin:\s*([\d.]+)",
-        'A_G_Ratio': r"A/G Ratio:\s*([\d.]+)",
+        'Total Bilirubin': r"Total Bilirubin:\s*([\d.]+)",
+        'Direct Bilirubin': r"Direct Bilirubin:\s*([\d.]+)",
+        'Alkaline Phosphotase': r"Alkaline Phosphotase \(Alkphos\):\s*(\d+)",
+        'Sgpt': r"Sgpt \(Alamine Aminotransferase\):\s*(\d+)",
+        'Sgot': r"Sgot \(Aspartate Aminotransferase\):\s*(\d+)",
+        'Total Proteins': r"Total Proteins:\s*([\d.]+)",
+        'Albumin_G': r"Albumin \(ALB\):\s*([\d.]+)",
+        'A/G Ratio': r"A/G Ratio:\s*([\d.]+)",
         'Pregnancies': r"Pregnancies:\s*(\d+)",
         'SkinThickness': r"Skin Thickness:\s*(\d+)",
         'Insulin': r"Insulin:\s*(\d+)",
@@ -67,30 +76,42 @@ def extract_patient_data(full_text):
         match = re.search(pattern, full_text)
         patient_data[key] = match.group(1) if match else "Not mentioned"
 
-    
-    alias_map = {
-        'Albumin': 'Albumin',
-        'A_G_Ratio': 'A/G Ratio',
-        'Direct_Bilirubin': 'Direct Bilirubin',
-        'Gender': 'Gender of the patient',
-        'Age': 'Age of the patient',
-        'Alanine_Aminotransferase': 'Sgot',
-        'Aspartate_Aminotransferase': 'Aspartate Aminotransferase'
-    }
-
-    for original, alias in alias_map.items():
-        if original in patient_data:
-            patient_data[alias] = patient_data[original]
     return patient_data
 
-@app.route("/extract", methods=["POST"])
-def extract():
+@app.route('/extract', methods=['POST'])
+def upload_file():
     if 'file' not in request.files:
-        return jsonify({"error": "No PDF file provided"}), 400
-    pdf_file = request.files['file']
-    text = extract_text_from_pdf(pdf_file)
-    data = extract_patient_data(text)
-    return jsonify(data)
+        return jsonify({'error': 'No file part'}), 400
+    
+    file = request.files['file']
+    
+    if file.filename == '':
+        return jsonify({'error': 'No selected file'}), 400
+    
+    if file and allowed_file(file.filename):
+        filename = secure_filename(file.filename)
+        filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+        file.save(filepath)
+        
+        try:
+            extracted_text = extract_text_from_pdf(filepath)
+            patient_data = extract_patient_data(extracted_text)
+            
+            # Clean up - remove the uploaded file after processing
+            os.remove(filepath)
+            
+            return jsonify({
+                'status': 'success',
+                'data': patient_data
+            })
+        except Exception as e:
+            return jsonify({'error': f'Error processing file: {str(e)}'}), 500
+    else:
+        return jsonify({'error': 'Allowed file type is PDF only'}), 400
 
-if __name__ == "__main__":
+@app.route('/')
+def home():
+    return "Patient Data Extraction API - Send a POST request to /extract with a PDF file"
+
+if __name__ == '__main__':
     app.run(debug=True)
