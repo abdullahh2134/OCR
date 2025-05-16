@@ -62,7 +62,7 @@ def extract_patient_data(full_text):
         'Sgpt': r"Sgpt\s*(?:\([^)]+\))?\s*:?\s*(\d+)",
         'Sgot': r"Sgot\s*(?:\([^)]+\))?\s*:?\s*(\d+)",
         'Total Proteins': r"Total Proteins\s*:?\s*([\d.]+)",
-        'Albumin_G': r"Albumin\s*\(?ALB\)?\s*:?\s*([\d.]+)",
+        'Albumin_G': r"(?:Albumin(?:_G)?|ALB|Albumin G)\s*(?:\([^)]+\))?\s*:?\s*([\d.]+)"
         'A/G Ratio': r"A/G Ratio\s*:?\s*([\d.]+)",
         'Pregnancies': r"Pregnancies\s*:?\s*(\d+)",
         'SkinThickness': r"Skin Thickness\s*:?\s*(\d+)",
