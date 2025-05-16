@@ -31,7 +31,7 @@ def extract_text_from_pdf(pdf_path):
 def extract_patient_data(full_text):
     patient_data = {}
 
-   patterns = {
+patterns = {
     'Age': r"Age\s*:?\s*(\d+)\s*(?:years)?",
     'Gender': r"Gender\s*:?\s*(Male|Female|\w+)",
     'BloodPressure': r"(?:Blood Pressure|BP)\s*(?:\([^)]+\))?\s*:?\s*([\d/]+)",
