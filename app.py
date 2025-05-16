@@ -1,4 +1,3 @@
-# app.py
 from flask import Flask, request, jsonify
 import fitz  # PyMuPDF
 import re
@@ -31,50 +30,49 @@ def extract_text_from_pdf(pdf_path):
 def extract_patient_data(full_text):
     patient_data = {}
 
-patterns = {
-    'Age': r"Age\s*:?\s*(\d+)\s*(?:years)?",
-    'Gender': r"Gender\s*:?\s*(Male|Female|\w+)",
-    'BloodPressure': r"(?:Blood Pressure|BP)\s*(?:\([^)]+\))?\s*:?\s*([\d/]+)",
-    'Glucose': r"(?:Blood Glucose Level|Glucose|BGR)\s*(?:\([^)]+\))?\s*:?\s*(\d+)",
-    'Specific Gravity': r"Specific Gravity\s*(?:\([^)]+\))?\s*:?\s*([\d.]+)",
-    'Albumin': r"Albumin\s*\(?(?:AL|Albumin)?\)?\s*:?\s*([\d.]+)",
-    'Sugar': r"Sugar\s*(?:\([^)]+\))?\s*:?\s*(\d+|\w+)",
-    'RBC': r"Red Blood Cells\s*(?:\([^)]+\))?\s*:?\s*(\w+)",
-    'Pus Cells': r"Pus Cells\s*(?:\([^)]+\))?\s*:?\s*(\w+)",
-    'Pus Cell Clumps': r"Pus Cell Clumps\s*(?:\([^)]+\))?\s*:?\s*(\w+)",
-    'Bacteria': r"(?:Bacteria|Bacterial Infection)\s*(?:\([^)]+\))?\s*:?\s*(\w+)",
-    'Blood Urea': r"Blood Urea\s*(?:\([^)]+\))?\s*:?\s*(\d+)",
-    'Serum Creatinine': r"Serum Creatinine\s*(?:\([^)]+\))?\s*:?\s*([\d.]+)",
-    'Sodium': r"Sodium\s*(?:\([^)]+\))?\s*:?\s*(\d+)",
-    'Potassium': r"Potassium\s*(?:\([^)]+\))?\s*:?\s*([\d.]+)",
-    'Hemoglobin': r"Hemoglobin\s*(?:\([^)]+\))?\s*:?\s*([\d.]+)",
-    'Hematocrit': r"Hematocrit\s*(?:\([^)]+\))?\s*:?\s*(\d+)",
-    'WBC Count': r"(?:White Blood Cell Count|WBC Count)\s*(?:\([^)]+\))?\s*:?\s*(\d+)",
-    'RBC Count': r"(?:Red Cell Count|Red Blood Cell Count)\s*(?:\([^)]+\))?\s*:?\s*([\d.]+)",
-    'Hypertension': r"Hypertension\s*(?:\([^)]+\))?\s*:?\s*(Yes|No|\w+)",
-    'Diabetes Mellitus': r"(?:Diabetes|Diabetes Mellitus|DM)\s*(?:\([^)]+\))?\s*:?\s*(Yes|No|\w+)",
-    'Coronary Artery Disease': r"Coronary Artery Disease\s*(?:\([^)]+\))?\s*:?\s*(Yes|No|\w+)",
-    'Appetite': r"Appetite\s*:?\s*(Good|Poor|\w+)",
-    'Pedal Edema': r"Pedal Edema\s*(?:\([^)]+\))?\s*:?\s*(Yes|No|\w+)",
-    'Anemia': r"Anemia\s*(?:\([^)]+\))?\s*:?\s*(Yes|No|\w+)",
-    'Total Bilirubin': r"Total Bilirubin\s*:?\s*([\d.]+)",
-    'Direct Bilirubin': r"Direct Bilirubin\s*:?\s*([\d.]+)",
-    'Alkaline Phosphotase': r"Alkaline Phosphotase\s*(?:\([^)]+\))?\s*:?\s*(\d+)",
-    'Sgpt': r"Sgpt\s*(?:\([^)]+\))?\s*:?\s*(\d+)",
-    'Sgot': r"Sgot\s*(?:\([^)]+\))?\s*:?\s*(\d+)",
-    'Total Proteins': r"Total Proteins\s*:?\s*([\d.]+)",
-    'Albumin_G': r"Albumin\s*\(?ALB\)?\s*:?\s*([\d.]+)",
-    'A/G Ratio': r"A/G Ratio\s*:?\s*([\d.]+)",
-    'Pregnancies': r"Pregnancies\s*:?\s*(\d+)",
-    'SkinThickness': r"Skin Thickness\s*:?\s*(\d+)",
-    'Insulin': r"Insulin\s*:?\s*(\d+)",
-    'BMI': r"(?:Body Mass Index|BMI)\s*:?\s*([\d.]+)",
-    'DiabetesPedigreeFunction': r"Diabetes Pedigree Function\s*:?\s*([\d.]+)"
-}
-
+    patterns = {
+        'Age': r"Age\s*:?\s*(\d+)\s*(?:years)?",
+        'Gender': r"Gender\s*:?\s*(Male|Female|\w+)",
+        'BloodPressure': r"(?:Blood Pressure|BP)\s*(?:\([^)]+\))?\s*:?\s*([\d/]+)",
+        'Glucose': r"(?:Blood Glucose Level|Glucose|BGR)\s*(?:\([^)]+\))?\s*:?\s*(\d+)",
+        'Specific Gravity': r"Specific Gravity\s*(?:\([^)]+\))?\s*:?\s*([\d.]+)",
+        'Albumin': r"Albumin\s*\(?(?:AL|Albumin)?\)?\s*:?\s*([\d.]+)",
+        'Sugar': r"Sugar\s*(?:\([^)]+\))?\s*:?\s*(\d+|\w+)",
+        'RBC': r"Red Blood Cells\s*(?:\([^)]+\))?\s*:?\s*(\w+)",
+        'Pus Cells': r"Pus Cells\s*(?:\([^)]+\))?\s*:?\s*(\w+)",
+        'Pus Cell Clumps': r"Pus Cell Clumps\s*(?:\([^)]+\))?\s*:?\s*(\w+)",
+        'Bacteria': r"(?:Bacteria|Bacterial Infection)\s*(?:\([^)]+\))?\s*:?\s*(\w+)",
+        'Blood Urea': r"Blood Urea\s*(?:\([^)]+\))?\s*:?\s*(\d+)",
+        'Serum Creatinine': r"Serum Creatinine\s*(?:\([^)]+\))?\s*:?\s*([\d.]+)",
+        'Sodium': r"Sodium\s*(?:\([^)]+\))?\s*:?\s*(\d+)",
+        'Potassium': r"Potassium\s*(?:\([^)]+\))?\s*:?\s*([\d.]+)",
+        'Hemoglobin': r"Hemoglobin\s*(?:\([^)]+\))?\s*:?\s*([\d.]+)",
+        'Hematocrit': r"Hematocrit\s*(?:\([^)]+\))?\s*:?\s*(\d+)",
+        'WBC Count': r"(?:White Blood Cell Count|WBC Count)\s*(?:\([^)]+\))?\s*:?\s*(\d+)",
+        'RBC Count': r"(?:Red Cell Count|Red Blood Cell Count)\s*(?:\([^)]+\))?\s*:?\s*([\d.]+)",
+        'Hypertension': r"Hypertension\s*(?:\([^)]+\))?\s*:?\s*(Yes|No|\w+)",
+        'Diabetes Mellitus': r"(?:Diabetes|Diabetes Mellitus|DM)\s*(?:\([^)]+\))?\s*:?\s*(Yes|No|\w+)",
+        'Coronary Artery Disease': r"Coronary Artery Disease\s*(?:\([^)]+\))?\s*:?\s*(Yes|No|\w+)",
+        'Appetite': r"Appetite\s*:?\s*(Good|Poor|\w+)",
+        'Pedal Edema': r"Pedal Edema\s*(?:\([^)]+\))?\s*:?\s*(Yes|No|\w+)",
+        'Anemia': r"Anemia\s*(?:\([^)]+\))?\s*:?\s*(Yes|No|\w+)",
+        'Total Bilirubin': r"Total Bilirubin\s*:?\s*([\d.]+)",
+        'Direct Bilirubin': r"Direct Bilirubin\s*:?\s*([\d.]+)",
+        'Alkaline Phosphotase': r"Alkaline Phosphotase\s*(?:\([^)]+\))?\s*:?\s*(\d+)",
+        'Sgpt': r"Sgpt\s*(?:\([^)]+\))?\s*:?\s*(\d+)",
+        'Sgot': r"Sgot\s*(?:\([^)]+\))?\s*:?\s*(\d+)",
+        'Total Proteins': r"Total Proteins\s*:?\s*([\d.]+)",
+        'Albumin_G': r"Albumin\s*\(?ALB\)?\s*:?\s*([\d.]+)",
+        'A/G Ratio': r"A/G Ratio\s*:?\s*([\d.]+)",
+        'Pregnancies': r"Pregnancies\s*:?\s*(\d+)",
+        'SkinThickness': r"Skin Thickness\s*:?\s*(\d+)",
+        'Insulin': r"Insulin\s*:?\s*(\d+)",
+        'BMI': r"(?:Body Mass Index|BMI)\s*:?\s*([\d.]+)",
+        'DiabetesPedigreeFunction': r"Diabetes Pedigree Function\s*:?\s*([\d.]+)"
+    }
 
     for key, pattern in patterns.items():
-        match = re.search(pattern, full_text)
+        match = re.search(pattern, full_text, re.IGNORECASE)
         patient_data[key] = match.group(1) if match else "Not mentioned"
 
     return patient_data
